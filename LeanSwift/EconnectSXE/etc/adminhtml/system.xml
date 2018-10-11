@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="leanswift" translate="label" sortOrder="100">
+            <label>LeanSwift Solutions</label>
+        </tab>
+        <section id="econnectSXE" translate="label" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>eConnect SX.e</label>
+            <tab>leanswift</tab>
+            <resource>LeanSwift_EconnectSXE::config_leanswift</resource>
+            <group id="general_config" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>General Configuration</label>
+                <field id="email" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0"
+                       showInStore="0">
+                    <label>Email</label>
+                    <validate>validate-email</validate>
+                    <comment><![CDATA[e-mail address where all errors will be sent]]></comment>
+                </field>
+                <field id="version" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="0"
+                       showInStore="0">
+                    <label>SX.e Version</label>
+                    <source_model>LeanSwift\EconnectSXE\Model\Config\Source\Version</source_model>
+                    <comment><![CDATA[SX.e Version]]></comment>
+                </field>
+                <field id="connection_string" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="0"
+                       showInStore="0">
+                    <label>SX.e Connection String</label>
+                    <depends>
+                        <field id="version">0</field>
+                    </depends>
+                </field>
+                <field id="location_url" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="0"
+                       showInStore="0">
+                    <label>Location URL</label>
+                    <depends>
+                        <field id="version">0</field>
+                    </depends>
+                    <comment><![CDATA[Soap Location URL]]></comment>
+                </field>
+                <field id="service_url" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="0"
+                       showInStore="0">
+                    <label>SX.e ION REST API Service URL</label>
+                    <validate>validate-url</validate>
+                    <depends>
+                        <field id="version">1</field>
+                    </depends>
+                    <comment><![CDATA[SX.e ION REST API Service URL]]></comment>
+                </field>
+                <field id="debug_log_data" translate="label" type="select" sortOrder="6" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Debug/log data</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>
+                        <![CDATA[Possibility to log data to check request and response data, specially when developing]]></comment>
+                </field>
+            </group>
+            <group id="basic_data" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1"
+                   showInStore="1">
+                <label>Basic Data Configuration</label>
+                <field id="company" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Company</label>
+                    <comment><![CDATA[Default company for store]]></comment>
+                </field>
+                <field id="operator" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Operator Initials</label>
+                    <comment><![CDATA[Operator Initials]]></comment>
+                </field>
+                <field id="operator_password" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Operator Password</label>
+                    <comment><![CDATA[Operator Password]]></comment>
+                </field>
+                <field id="warehouse" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1"
+                       showInStore="1">
+                    <label>Warehouse</label>
+                    <comment><![CDATA[Default warehouse for store]]></comment>
+                </field>
+            </group>
+            <group id="authentication" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0"
+                   showInStore="0">
+                <label>Authentication</label>
+                <field id="web_service_username" translate="label" type="text" sortOrder="1" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Web Service Username</label>
+                </field>
+                <field id="web_service_password" translate="label" type="password" sortOrder="2" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Web Service Password</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+                <field id="web_service_clientid" translate="label" type="text" sortOrder="3" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Client Id</label>
+                </field>
+                <field id="web_service_clientsecret" translate="label" type="password" sortOrder="4" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Client Secret</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+            </group>
+            <group id="cron" translate="label" type="text" sortOrder="130" showInDefault="1" showInWebsite="0"
+                   showInStore="0">
+                <label>Cron</label>
+                <field id="stock_update" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0"
+                       showInStore="0">
+                    <label>Cron settings for stock update</label>
+                    <comment><![CDATA[Ex. Every 2 hours = 0 */2 * * * (Leave blank to disable)]]></comment>
+                </field>
+                <field id="list_price" translate="label" type="text" sortOrder="2" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Cron settings for list price Sync</label>
+                    <comment><![CDATA[Ex. Every 2 hours = 0 */2 * * * (Leave blank to disable)]]></comment>
+                </field>
+            </group>
+            <group id="version" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="0"
+                   showInStore="0">
+                <label>Version</label>
+                <field id="magento" translate="label"  sortOrder="1" showInDefault="1"
+                       showInWebsite="0" showInStore="0">
+                    <label>Magento Version</label>
+                    <frontend_model>LeanSwift\EconnectSXE\Block\Backend\Mapping\Version</frontend_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
