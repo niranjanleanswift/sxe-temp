@@ -6,9 +6,12 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <preference for="LeanSwift\EconnectSXE\Api\Soap\RequestInterface" type="LeanSwift\EconnectSXE\Model\Soap\Client\Request"/>
-    <type name="LeanSwift\EconnectSXE\Model\Soap\Client\Request">
+    <preference for="LeanSwift\EconnectSXE\Api\Soap\RequestInterface" type="LeanSwift\EconnectSXE\Model\Soap\Client\Connect"/>
+    <preference for="LeanSwift\EconnectSXE\Api\UpdateStock" type="LeanSwift\EconnectSXE\Model\Catalog\Product\UpdateStock"/>
+    <preference for="LeanSwift\EconnectSXE\Api\ConfigurationRepositoryInterface" type="LeanSwift\EconnectSXE\Model\Catalog\Product\UpdateStock"/>
+    <type name="LeanSwift\EconnectSXE\Model\Soap\Client\Connect">
         <arguments>
+            <argument name="locationURL" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_SOAP_SERVICE_URL</argument>
             <argument name="callConnectionString" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::CONNECTION_STRING</argument>
             <argument name="removeString" xsi:type="array">
                 <item name="list" xsi:type="array">
@@ -17,19 +20,19 @@
             </argument>
             <argument name="callConnectionParams" xsi:type="array">
                 <item name="CompanyNumber" xsi:type="array">
-                    <item name="pathvalue" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::XML_PATH_COMPANY_NUMBER</item>
+                    <item name="pathvalue" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_PATH_COMPANY_NUMBER</item>
                     <item name="namespace" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::PROXY_NAMESPACE</item>
                 </item>
                 <item name="ConnectionString" xsi:type="array">
-                    <item name="pathvalue" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::XML_PATH_CONNECTION_STRING</item>
+                    <item name="pathvalue" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_PATH_CONNECTION_STRING</item>
                     <item name="namespace" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::PROXY_NAMESPACE</item>
                 </item>
                 <item name="OperatorInitials" xsi:type="array">
-                    <item name="pathvalue" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::XML_PATH_OPERATOR_INTIALS</item>
+                    <item name="pathvalue" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_PATH_OPERATOR_INTIALS</item>
                     <item name="namespace" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::PROXY_NAMESPACE</item>
                 </item>
                 <item name="OperatorPassword" xsi:type="array">
-                    <item name="pathvalue" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::XML_PATH_OPERATOR_PASSWORD</item>
+                    <item name="pathvalue" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_PATH_OPERATOR_PASSWORD</item>
                     <item name="namespace" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::PROXY_NAMESPACE</item>
                 </item>
                 <item name="SessionModel" xsi:type="array">
@@ -40,52 +43,65 @@
         </arguments>
     </type>
 
-    <!-- Logger -->
+    <!-- Start Logger -->
 
-    <!-- WarehouseList Log -->
-    <virtualType name="LeanSwift\EconnectSXE\Logger\Handler\WareHouseListHandler" type="Magento\Framework\Logger\Handler\Base">
+    <!-- Stock Synch Log -->
+    <virtualType name="StockSyncHandler" type="Magento\Framework\Logger\Handler\Base">
         <arguments>
-            <argument name="fileName" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::WAREHOUSE_LOG</argument>
+            <argument name="fileName" xsi:type="const">LeanSwift\EconnectSXE\Helper\Logger::STOCK_SYNC_LOG</argument>
             <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="LeanSwift\EconnectSXE\Logger\WareHouseListLogger" type="Monolog\Logger">
+    <virtualType name="StockSyncLogger" type="Monolog\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">StockSyncLogger</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">StockSyncHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- WarehouseList Log -->
+    <virtualType name="WareHouseListHandler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="const">LeanSwift\EconnectSXE\Helper\Logger::WAREHOUSE_LOG</argument>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="WareHouseListLogger" type="Monolog\Logger">
         <arguments>
             <argument name="name" xsi:type="string">WarehouseList</argument>
             <argument name="handlers" xsi:type="array">
-                <item name="system" xsi:type="object">LeanSwift\EconnectSXE\Logger\Handler\WareHouseListHandler</item>
+                <item name="system" xsi:type="object">WareHouseListHandler</item>
             </argument>
         </arguments>
     </virtualType>
 
     <!-- ProductSych Log -->
-    <virtualType name="LeanSwift\EconnectSXE\Logger\Handler\ProductLogHandler" type="Magento\Framework\Logger\Handler\Base">
+    <virtualType name="ProductLogHandler" type="Magento\Framework\Logger\Handler\Base">
         <arguments>
-            <argument name="fileName" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::PRODUCT_SYNC_LOG</argument>
+            <argument name="fileName" xsi:type="const">LeanSwift\EconnectSXE\Helper\Logger::PRODUCT_SYNC_LOG</argument>
             <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="LeanSwift\EconnectSXE\Logger\ProductSynchLogger" type="Monolog\Logger">
+    <virtualType name="ProductSynchLogger" type="Monolog\Logger">
         <arguments>
             <argument name="name" xsi:type="string">ProductSycnhLog</argument>
             <argument name="handlers" xsi:type="array">
-                <item name="system" xsi:type="object">LeanSwift\EconnectSXE\Logger\Handler\ProductLogHandler</item>
+                <item name="system" xsi:type="object">ProductLogHandler</item>
             </argument>
         </arguments>
     </virtualType>
 
+    <!-- End Logger -->
 
-    <type name="LeanSwift\EconnectSXE\Model\Soap\AbstractRequest">
+    <type name="LeanSwift\EconnectSXE\Model\Soap\ProductStock">
         <arguments>
-            <argument name="locationURL" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::XML_SOAP_SERVICE_URL</argument>
-        </arguments>
-    </type>
-
-    <type name="LeanSwift\EconnectSXE\Model\Soap\ProductQty">
-        <arguments>
-            <argument name="logger" xsi:type="object">LeanSwift\EconnectSXE\Logger\ProductSynchLogger</argument>
+            <argument name="logger" xsi:type="object">ProductSynchLogger</argument>
+            <argument name="loggerEnablePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_STOCK_ENABLE_LOGGER</argument>
             <argument name="mappings" xsi:type="array">
                 <item name="namespace" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::PRODUCT_NAMESPACE</item>
                 <item name="api" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::PRODUCT_API</item>
@@ -94,10 +110,42 @@
     </type>
     <type name="LeanSwift\EconnectSXE\Model\Soap\WarehouseList">
         <arguments>
+            <argument name="logger" xsi:type="object">WareHouseListLogger</argument>
+            <argument name="loggerEnablePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_DEFAULT_DEBUG_ENABLE</argument>
             <argument name="mappings" xsi:type="array">
                 <item name="namespace" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::WAREHOUSE_NAMESPACE</item>
                 <item name="api" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::WAREHOUSE_API</item>
             </argument>
+        </arguments>
+    </type>
+
+    <!-- Virtual Type for Stock update based on the settings -->
+
+    <virtualType name="StockUpdateDuringProductView" type="LeanSwift\EconnectSXE\Model\Catalog\Product\UpdateStock">
+        <arguments>
+            <argument name="backendEnablePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_STOCK_ENABLE_PRODUCT_VIEW</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="StockUpdateDuringAddToCart" type="LeanSwift\EconnectSXE\Model\Catalog\Product\UpdateStock">
+        <arguments>
+            <argument name="backendEnablePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_STOCK_ENABLE_ADD_TO_CART</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- This happens during the product view page -->
+
+    <type name="LeanSwift\EconnectSXE\Observer\Catalog\UpdateProduct">
+        <arguments>
+            <argument name="updateStock" xsi:type="object">StockUpdateDuringProductView</argument>
+        </arguments>
+    </type>
+
+    <!-- This happens during the add to cart page -->
+
+    <type name="LeanSwift\EconnectSXE\Observer\Stock\StockSyncOnAddToCartObserver">
+        <arguments>
+            <argument name="updateStock" xsi:type="object">StockUpdateDuringAddToCart</argument>
         </arguments>
     </type>
 

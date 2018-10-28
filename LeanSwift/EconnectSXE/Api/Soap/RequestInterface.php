@@ -25,4 +25,10 @@ interface RequestInterface
     public function getRequestBody();
 
     public function sendRequest();
+
+    public function getResponse();
+
+    public function setLogger(\Monolog\Logger $logger);
+
+    public function setLoggerEnablePath($path);
 }

@@ -36,32 +36,36 @@ abstract class AbstractRequest
     protected $_helper;
     protected $_request;
     protected $_mappings;
-    protected $_locationURL;
     protected $_logger;
+    protected $_loggerEnablePath;
 
     public function __construct
     (
         RequestInterface $request,
         Data $helper,
         $mappings = [],
-        $locationURL = '',
-        Logger $logger
+        Logger $logger,
+        $loggerEnablePath = ''
     )
     {
         $this->_request = $request;
         $this->_helper  = $helper;
         $this->_mappings = $mappings;
-        $this->_locationURL = $locationURL;
         $this->_logger = $logger;
-        $this->_logger->info('Testing');
-        exit;
+        $this->_loggerEnablePath = $loggerEnablePath;
     }
 
     public function send() {
-        $this->_request->setLocationURL($this->_helper->getDataValue($this->_locationURL));
+        $this->_request->setLogger($this->_logger);
+        $this->_request->setLoggerEnablePath($this->_loggerEnablePath);
         $this->_request->setRequestBody($this->getPostValues(), $this->_mappings['namespace']);
         $this->_request->setAPI($this->_mappings['api']);
         $this->_request->sendRequest();
+    }
+
+    public function getResponse()
+    {
+        return $this->_request->getResponse();
     }
 
     abstract public function getPostValues();

@@ -27,6 +27,7 @@
 
 namespace LeanSwift\EconnectSXE\Controller\Test;
 
+use Klarna\Core\Exception;
 use Magento\Framework\App\Action\Action;
 use LeanSwift\EconnectSXE\Helper\Data;
 use Magento\Framework\App\Action\Context;
@@ -43,6 +44,31 @@ class Checking extends Action
 
     public function execute()
     {
+        $WarehouseList = $this->_objectManager->create('LeanSwift\EconnectSXE\Cron\FetchWarehouseList');
+        $WarehouseList->fetchValues();
+        echo "done";
+        exit;
+
+        try{
+            $product = $this->_objectManager->create('Magento\Catalog\Api\ProductRepositoryInterface');
+            //
+            $info = $product->getById(1,false,1,true);
+            echo  $info->getSku();
+        }
+        catch (\Exception $e) {
+            echo $e->getMessage();
+        }
+
+        exit;
+        $StockRegistryInterface->update(1,'TEST SIMPLE PRODUCT');
+        $StockItemInterface = $this->_objectManager->create('Magento\CatalogInventory\Api\Data\StockItemInterface');
+        $StockItemInterface->setProductId(1)
+            ->setQty(120);
+        $StockRegistryInterface->updateStockItemBySku('TEST SIMPLE PRODUCT', $StockItemInterface);
+        echo "done";
+        exit;
+        //$WarehouseList->send();
+
         try{
 //            $values['CustomerNumber'] ='100';
 //            $values['Product'] ='1-001';
@@ -62,7 +88,7 @@ class Checking extends Action
 
             //warehouse
 
-            $WarehouseList = $this->_objectManager->create('LeanSwift\EconnectSXE\Model\Soap\ProductQty');
+            $WarehouseList = $this->_objectManager->create('LeanSwift\EconnectSXE\Model\Soap\WarehouseList');
             $WarehouseList->send();
             exit;
             $values['Sort'] ='';

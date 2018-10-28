@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <tab id="leanswift" translate="label" sortOrder="100">
             <label>LeanSwift Solutions</label>
@@ -81,44 +80,55 @@
                     <comment><![CDATA[Default warehouse for store]]></comment>
                 </field>
             </group>
-            <group id="authentication" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0"
-                   showInStore="0">
+            <group id="authentication" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>Authentication</label>
-                <field id="web_service_username" translate="label" type="text" sortOrder="1" showInDefault="1"
-                       showInWebsite="0" showInStore="0">
+                <field id="web_service_username" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Web Service Username</label>
                 </field>
-                <field id="web_service_password" translate="label" type="password" sortOrder="2" showInDefault="1"
-                       showInWebsite="0" showInStore="0">
+                <field id="web_service_password" translate="label" type="password" sortOrder="2" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Web Service Password</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                 </field>
-                <field id="web_service_clientid" translate="label" type="text" sortOrder="3" showInDefault="1"
-                       showInWebsite="0" showInStore="0">
+                <field id="web_service_clientid" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Client Id</label>
                 </field>
-                <field id="web_service_clientsecret" translate="label" type="password" sortOrder="4" showInDefault="1"
-                       showInWebsite="0" showInStore="0">
+                <field id="web_service_clientsecret" translate="label" type="password" sortOrder="4" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Client Secret</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                 </field>
             </group>
-            <group id="cron" translate="label" type="text" sortOrder="130" showInDefault="1" showInWebsite="0"
-                   showInStore="0">
-                <label>Cron</label>
-                <field id="stock_update" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0"
-                       showInStore="0">
+            <group id="stock" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Inventory Synchronization</label>
+                <field id="enable_productview" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable in product view page</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="enable_cart" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable during add to cart</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="enable_checkout" translate="label" type="select" sortOrder="3" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable in checkout page</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="log" translate="label" type="select" sortOrder="4" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Debug/log data</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="cron" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Cron settings for stock update</label>
                     <comment><![CDATA[Ex. Every 2 hours = 0 */2 * * * (Leave blank to disable)]]></comment>
                 </field>
+            </group>
+            <group id="cron" translate="label" type="text" sortOrder="130" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Cron</label>
                 <field id="list_price" translate="label" type="text" sortOrder="2" showInDefault="1"
                        showInWebsite="0" showInStore="0">
                     <label>Cron settings for list price Sync</label>
                     <comment><![CDATA[Ex. Every 2 hours = 0 */2 * * * (Leave blank to disable)]]></comment>
                 </field>
             </group>
-            <group id="version" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="0"
-                   showInStore="0">
+            <group id="version" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>Version</label>
                 <field id="magento" translate="label"  sortOrder="1" showInDefault="1"
                        showInWebsite="0" showInStore="0">
