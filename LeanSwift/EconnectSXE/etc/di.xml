@@ -8,7 +8,6 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="LeanSwift\EconnectSXE\Api\Soap\RequestInterface" type="LeanSwift\EconnectSXE\Model\Soap\Client\Connect"/>
     <preference for="LeanSwift\EconnectSXE\Api\UpdateStock" type="LeanSwift\EconnectSXE\Model\Catalog\Product\UpdateStock"/>
-    <preference for="LeanSwift\EconnectSXE\Api\ConfigurationRepositoryInterface" type="LeanSwift\EconnectSXE\Model\Catalog\Product\UpdateStock"/>
     <type name="LeanSwift\EconnectSXE\Model\Soap\Client\Connect">
         <arguments>
             <argument name="locationURL" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_SOAP_SERVICE_URL</argument>

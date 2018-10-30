@@ -38,6 +38,7 @@ abstract class AbstractRequest
     protected $_mappings;
     protected $_logger;
     protected $_loggerEnablePath;
+    protected $_postValues;
 
     public function __construct
     (

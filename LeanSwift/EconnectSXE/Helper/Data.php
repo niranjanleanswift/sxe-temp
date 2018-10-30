@@ -6,6 +6,7 @@
 namespace LeanSwift\EconnectSXE\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Store\Model\ScopeInterface;
 
 class Data extends AbstractHelper
 {
@@ -29,9 +30,11 @@ class Data extends AbstractHelper
     const SESSION_MODEL = '0';
     const SEPARATOR = ':';
 
-    public function getDataValue($path) {
+    public function getDataValue($path, $store=null) {
         return $this->scopeConfig->getValue(
-            $path
+            $path,
+            ScopeInterface::SCOPE_STORE,
+            $store
         );
     }
 }

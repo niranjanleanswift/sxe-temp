@@ -44,9 +44,11 @@ class Checking extends Action
 
     public function execute()
     {
-        $WarehouseList = $this->_objectManager->create('LeanSwift\EconnectSXE\Cron\FetchWarehouseList');
-        $WarehouseList->fetchValues();
+        echo "<pre>";
+        $WarehouseList = $this->_objectManager->create('LeanSwift\EconnectSXE\Model\Config\Source\WarehouseList');
+        print_r($WarehouseList->toOptionArray());
         echo "done";
+        exit;
         exit;
 
         try{

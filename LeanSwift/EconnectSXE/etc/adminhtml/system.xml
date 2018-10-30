@@ -74,10 +74,16 @@
                     <label>Operator Password</label>
                     <comment><![CDATA[Operator Password]]></comment>
                 </field>
-                <field id="warehouse" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1"
+                <field id="warehouse" translate="label" type="select" sortOrder="4" showInDefault="1" showInWebsite="1"
                        showInStore="1">
                     <label>Warehouse</label>
                     <comment><![CDATA[Default warehouse for store]]></comment>
+                    <source_model>LeanSwift\EconnectSXE\Model\Config\Source\WarehouseList</source_model>
+                </field>
+                <field id="datafield_button" translate="button_label" sortOrder="5" showInDefault="1" showInStore="0"
+                       showInWebsite="1">
+                    <button_label>Retreive Warehouse List</button_label>
+                    <frontend_model>LeanSwift\EconnectSXE\Block\Adminhtml\Config\RetreiveList</frontend_model>
                 </field>
             </group>
             <group id="authentication" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
