@@ -1,0 +1,9 @@
+<?php
+
+namespace LeanSwift\EconnectSXE\Api;
+
+interface UpdateStock
+{
+    public function setEnablePath($path);
+    public function update($productId);
+}

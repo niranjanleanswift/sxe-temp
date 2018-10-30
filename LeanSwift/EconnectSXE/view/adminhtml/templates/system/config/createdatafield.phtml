@@ -1,0 +1,19 @@
+<form id="retriveList" action="<?php echo $block->escapeUrl($block->getAjaxUrl())?>" method="POST">
+<div class="actions actions-create-datafield">
+    <div id="validation_result" class="message-validation hidden"></div>
+    <button class="action-create-datafield" type="button" id="<?= $block->getHtmlId() ?>">
+        <span><?= $block->escapeHtml($block->getButtonLabel()) ?></span>
+    </button>
+    <input name="form_key" type="hidden" value="<?php echo $block->getFormKey();?>">
+</div>
+</form>
+
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "LeanSwift_EconnectSXE/js/dataFields":{
+                "url":"<?= $block->escapeUrl($block->getAjaxUrl()) ?>"
+            }
+        }
+    }
+</script>
