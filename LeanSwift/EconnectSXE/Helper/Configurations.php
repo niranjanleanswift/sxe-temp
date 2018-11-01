@@ -16,5 +16,6 @@ class Configurations
     /** Stock Settings */
     const XML_STOCK_ENABLE_PRODUCT_VIEW = 'econnectSXE/stock/enable_productview';
     const XML_STOCK_ENABLE_ADD_TO_CART = 'econnectSXE/stock/enable_cart';
+    const XML_STOCK_ENABLE_CHECKOUT_PAGE = 'econnectSXE/stock/enable_checkout';
     const XML_STOCK_ENABLE_LOGGER = 'econnectSXE/stock/log';
 }

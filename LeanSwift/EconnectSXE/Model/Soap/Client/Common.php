@@ -50,6 +50,10 @@ class Common extends SoapClient
         $this->_removeString = $string;
     }
 
+    public function getLastsendRequest() {
+        return $this->__last_request;
+    }
+
     public function __getLastRequestHeaders()
     {
         return $this->__last_request_headers;

@@ -7,7 +7,7 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="LeanSwift\EconnectSXE\Api\Soap\RequestInterface" type="LeanSwift\EconnectSXE\Model\Soap\Client\Connect"/>
-    <preference for="LeanSwift\EconnectSXE\Api\UpdateStock" type="LeanSwift\EconnectSXE\Model\Catalog\Product\UpdateStock"/>
+    <preference for="LeanSwift\EconnectSXE\Api\UpdateStock" type="LeanSwift\EconnectSXE\Model\Catalog\Product\Stock"/>
     <type name="LeanSwift\EconnectSXE\Model\Soap\Client\Connect">
         <arguments>
             <argument name="locationURL" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_SOAP_SERVICE_URL</argument>
@@ -39,6 +39,13 @@
                     <item name="namespace" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::PROXY_NAMESPACE</item>
                 </item>
             </argument>
+        </arguments>
+    </type>
+
+    <type name="LeanSwift\EconnectSXE\Model\Catalog\Product\Stock">
+        <arguments>
+            <argument name="warehousePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_DEFAULT_WAREHOUSE</argument>
+            <argument name="responseField" xsi:type="string">NetAvailable</argument>
         </arguments>
     </type>
 
@@ -79,18 +86,18 @@
     </virtualType>
 
     <!-- ProductSych Log -->
-    <virtualType name="ProductLogHandler" type="Magento\Framework\Logger\Handler\Base">
+    <virtualType name="StockSynchLogHandler" type="Magento\Framework\Logger\Handler\Base">
         <arguments>
-            <argument name="fileName" xsi:type="const">LeanSwift\EconnectSXE\Helper\Logger::PRODUCT_SYNC_LOG</argument>
+            <argument name="fileName" xsi:type="const">LeanSwift\EconnectSXE\Helper\Logger::STOCK_SYNC_LOG</argument>
             <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="ProductSynchLogger" type="Monolog\Logger">
+    <virtualType name="StockSynchLogger" type="Monolog\Logger">
         <arguments>
-            <argument name="name" xsi:type="string">ProductSycnhLog</argument>
+            <argument name="name" xsi:type="string">StockSynchLog</argument>
             <argument name="handlers" xsi:type="array">
-                <item name="system" xsi:type="object">ProductLogHandler</item>
+                <item name="system" xsi:type="object">StockSynchLogHandler</item>
             </argument>
         </arguments>
     </virtualType>
@@ -99,7 +106,7 @@
 
     <type name="LeanSwift\EconnectSXE\Model\Soap\ProductStock">
         <arguments>
-            <argument name="logger" xsi:type="object">ProductSynchLogger</argument>
+            <argument name="logger" xsi:type="object">StockSynchLogger</argument>
             <argument name="loggerEnablePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_STOCK_ENABLE_LOGGER</argument>
             <argument name="mappings" xsi:type="array">
                 <item name="namespace" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::PRODUCT_NAMESPACE</item>
@@ -107,6 +114,7 @@
             </argument>
         </arguments>
     </type>
+
     <type name="LeanSwift\EconnectSXE\Model\Soap\WarehouseList">
         <arguments>
             <argument name="logger" xsi:type="object">WareHouseListLogger</argument>
@@ -118,23 +126,40 @@
         </arguments>
     </type>
 
+    <type name="LeanSwift\EconnectSXE\Model\Soap\CustomerPrice">
+        <arguments>
+            <argument name="logger" xsi:type="object">ProductSynchLogger</argument>
+            <argument name="loggerEnablePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_DEFAULT_DEBUG_ENABLE</argument>
+            <argument name="mappings" xsi:type="array">
+                <item name="namespace" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::CUSTOMER_PRICE_NAMESPACE</item>
+                <item name="api" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::CUSTOMER_PRICE_API</item>
+            </argument>
+        </arguments>
+    </type>
+
     <!-- Virtual Type for Stock update based on the settings -->
 
-    <virtualType name="StockUpdateDuringProductView" type="LeanSwift\EconnectSXE\Model\Catalog\Product\UpdateStock">
+    <virtualType name="StockUpdateDuringProductView" type="LeanSwift\EconnectSXE\Model\Catalog\Product\Stock">
         <arguments>
             <argument name="backendEnablePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_STOCK_ENABLE_PRODUCT_VIEW</argument>
         </arguments>
     </virtualType>
 
-    <virtualType name="StockUpdateDuringAddToCart" type="LeanSwift\EconnectSXE\Model\Catalog\Product\UpdateStock">
+    <virtualType name="StockUpdateDuringAddToCart" type="LeanSwift\EconnectSXE\Model\Catalog\Product\Stock">
         <arguments>
             <argument name="backendEnablePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_STOCK_ENABLE_ADD_TO_CART</argument>
         </arguments>
     </virtualType>
 
+    <virtualType name="StockUpdateDuringAddToCheckout" type="LeanSwift\EconnectSXE\Model\Catalog\Product\Stock">
+        <arguments>
+            <argument name="backendEnablePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_STOCK_ENABLE_CHECKOUT_PAGE</argument>
+        </arguments>
+    </virtualType>
+
     <!-- This happens during the product view page -->
 
-    <type name="LeanSwift\EconnectSXE\Observer\Catalog\UpdateProduct">
+    <type name="LeanSwift\EconnectSXE\Observer\Stock\StockSyncOnProductViewObserver">
         <arguments>
             <argument name="updateStock" xsi:type="object">StockUpdateDuringProductView</argument>
         </arguments>
@@ -145,6 +170,12 @@
     <type name="LeanSwift\EconnectSXE\Observer\Stock\StockSyncOnAddToCartObserver">
         <arguments>
             <argument name="updateStock" xsi:type="object">StockUpdateDuringAddToCart</argument>
+        </arguments>
+    </type>
+
+    <type name="LeanSwift\EconnectSXE\Observer\Stock\StockSyncOnCheckoutObserver">
+        <arguments>
+            <argument name="updateStock" xsi:type="object">StockUpdateDuringAddToCheckout</argument>
         </arguments>
     </type>
 

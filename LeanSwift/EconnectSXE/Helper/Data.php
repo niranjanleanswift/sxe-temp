@@ -26,6 +26,10 @@ class Data extends AbstractHelper
     const WAREHOUSE_NAMESPACE = 'http://schemas.datacontract.org/2004/07/ProxyGen.com.infor.sxapi.ICGetWarehouseList';
     const WAREHOUSE_API= 'ICGetWarehouseList';
 
+    /** Customer price Parameters */
+    const CUSTOMER_PRICE_NAMESPACE = 'http://schemas.datacontract.org/2004/07/ProxyGen.com.infor.sxapi.OEPricingV4';
+    const CUSTOMER_PRICE_API= 'OEPricingV4';
+
     /** Other constants */
     const SESSION_MODEL = '0';
     const SEPARATOR = ':';

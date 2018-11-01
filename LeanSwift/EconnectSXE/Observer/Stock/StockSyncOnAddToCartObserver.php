@@ -23,6 +23,6 @@ class StockSyncOnAddToCartObserver implements ObserverInterface
     public function execute(Observer $observer)
     {
         $productId = (int)$this->_request->getParam('product');
-        $this->_updateStock->update($productId);
+        $this->_updateStock->updateProductStock($productId);
     }
 }

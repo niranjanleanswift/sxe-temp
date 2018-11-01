@@ -116,7 +116,8 @@ class Connect implements RequestInterface
             $responseArray = \Zend_Json::decode($json);
             $this->_response = $responseArray;
             if($this->isLoggerEnabled()) {
-                $this->logger->info(print_r($this->_response,true));
+                $this->logger->info(print_r($client->__getLastRequest(),true));
+                $this->logger->info(print_r($client->__getLastResponse(),true));
             }
         }
         catch (\Exception $e) {

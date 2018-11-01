@@ -121,14 +121,33 @@
                     <label>Debug/log data</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="cron" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Cron settings for stock update</label>
-                    <comment><![CDATA[Ex. Every 2 hours = 0 */2 * * * (Leave blank to disable)]]></comment>
+            </group>
+            <group id="customer_price" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Customer Price Synchronization</label>
+                <field id="enable_productview" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable in product view page</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="enable_cart" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable during add to cart</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="log" translate="label" type="select" sortOrder="4" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Debug/log data</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
             </group>
             <group id="cron" translate="label" type="text" sortOrder="130" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>Cron</label>
-                <field id="list_price" translate="label" type="text" sortOrder="2" showInDefault="1"
+                <field id="inventory_synch" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Cron settings for stock update</label>
+                    <comment><![CDATA[Ex. Every 2 hours = 0 */2 * * * (Leave blank to disable)]]></comment>
+                </field>
+                <field id="customer_price" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Cron settings for customer price</label>
+                    <comment><![CDATA[Ex. Every 2 hours = 0 */2 * * * (Leave blank to disable)]]></comment>
+                </field>
+                <field id="list_price" translate="label" type="text" sortOrder="23" showInDefault="1"
                        showInWebsite="0" showInStore="0">
                     <label>Cron settings for list price Sync</label>
                     <comment><![CDATA[Ex. Every 2 hours = 0 */2 * * * (Leave blank to disable)]]></comment>

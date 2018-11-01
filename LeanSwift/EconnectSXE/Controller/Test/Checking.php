@@ -44,9 +44,23 @@ class Checking extends Action
 
     public function execute()
     {
+
+//        $pid = pcntl_fork();
+//
+//switch($pid) {
+//    case -1:
+//        print "Could not fork!\n";
+//        exit;
+//    case 0:
+//        print "In child!\n";
+//        break;
+//    default:
+//        print "In parent!\n";
+//}
+
         echo "<pre>";
-        $WarehouseList = $this->_objectManager->create('LeanSwift\EconnectSXE\Model\Config\Source\WarehouseList');
-        print_r($WarehouseList->toOptionArray());
+        $CustomerPrice = $this->_objectManager->create('LeanSwift\EconnectSXE\Model\Soap\CustomerPrice');
+        $CustomerPrice->send();
         echo "done";
         exit;
         exit;

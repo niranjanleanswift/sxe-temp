@@ -69,5 +69,15 @@ abstract class AbstractRequest
         return $this->_request->getResponse();
     }
 
-    abstract public function getPostValues();
+    public function setPostValues($postValues) {
+        $this->_postValues = $postValues;
+    }
+
+    public function getLogger() {
+        return $this->_logger;
+    }
+
+    public function getPostValues() {
+        return $this->_postValues;
+    }
 }

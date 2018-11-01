@@ -24,9 +24,12 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
     <event name="catalog_controller_product_init_before">
-        <observer name="sxe_update_product" instance="LeanSwift\EconnectSXE\Observer\Catalog\UpdateProduct" shared="false"/>
+        <observer name="sxe_update_product" instance="LeanSwift\EconnectSXE\Observer\Stock\StockSyncOnProductViewObserver" shared="false"/>
     </event>
     <event name="controller_action_predispatch_checkout_cart_add">
         <observer name="sxe_stock_sync_on_add_to_cart" instance="LeanSwift\EconnectSXE\Observer\Stock\StockSyncOnAddToCartObserver" shared="false"/>
+    </event>
+    <event name="controller_action_predispatch_checkout_index_index">
+        <observer name="stock_sync_on_checkout" instance="LeanSwift\EconnectSXE\Observer\Stock\StockSyncOnCheckoutObserver" shared="false"/>
     </event>
 </config>
