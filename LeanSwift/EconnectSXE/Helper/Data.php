@@ -7,7 +7,8 @@ namespace LeanSwift\EconnectSXE\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Store\Model\ScopeInterface;
-
+use Magento\Store\Model\StoreManagerInterface as StoreManager;
+use Magento\Framework\App\Helper\Context;
 class Data extends AbstractHelper
 {
     /** Common namespace */
@@ -34,11 +35,31 @@ class Data extends AbstractHelper
     const SESSION_MODEL = '0';
     const SEPARATOR = ':';
 
+    protected $_storeManager = null;
+
+    public function __construct(
+        StoreManager $storeManager,
+        Context $context
+    )
+    {
+        $this->_storeManager = $storeManager;
+        parent::__construct($context);
+    }
+
     public function getDataValue($path, $store=null) {
+        if(!$store) {
+            $store = $this->getStoreId();
+        }
         return $this->scopeConfig->getValue(
             $path,
             ScopeInterface::SCOPE_STORE,
             $store
         );
+    }
+
+    public function getStoreId()
+    {
+        $storeId = $this->_storeManager->getStore()->getStoreId();
+        return $storeId;
     }
 }

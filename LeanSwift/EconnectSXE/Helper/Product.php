@@ -6,7 +6,6 @@
 namespace LeanSwift\EconnectSXE\Helper;
 
 use Magento\Framework\Api\AttributeValue;
-use Magento\Catalog\Model\ProductFactory;
 
 class Product
 {

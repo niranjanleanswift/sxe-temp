@@ -124,13 +124,18 @@
             </group>
             <group id="customer_price" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>Customer Price Synchronization</label>
-                <field id="enable_productview" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="enable_price" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Enable in product view page</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="enable_cart" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Enable during add to cart</label>
+                <field id="enable_listing" translate="label" type="select" sortOrder="2" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable in Listing Page</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="cache_hours" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Cache Hours</label>
+                    <validate>validate-number validate-zero-or-greater</validate>
+                    <comment><![CDATA[Hours to keep customer price in cache]]></comment>
                 </field>
                 <field id="log" translate="label" type="select" sortOrder="4" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Debug/log data</label>

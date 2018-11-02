@@ -30,6 +30,9 @@
         <observer name="sxe_stock_sync_on_add_to_cart" instance="LeanSwift\EconnectSXE\Observer\Stock\StockSyncOnAddToCartObserver" shared="false"/>
     </event>
     <event name="controller_action_predispatch_checkout_index_index">
-        <observer name="stock_sync_on_checkout" instance="LeanSwift\EconnectSXE\Observer\Stock\StockSyncOnCheckoutObserver" shared="false"/>
+        <observer name="sxe_stock_sync_on_checkout" instance="LeanSwift\EconnectSXE\Observer\Stock\StockSyncOnCheckoutObserver" shared="false"/>
+    </event>
+    <event name="controller_action_postdispatch_catalog_product_view">
+        <observer name="sxe_price_for_productview" instance="LeanSwift\EconnectSXE\Observer\CustomerPrice\BindCustomerPriceonViewPageLoadObserver" shared="false"/>
     </event>
 </config>

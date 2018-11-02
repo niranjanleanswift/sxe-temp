@@ -22,43 +22,74 @@
 
 namespace LeanSwift\EconnectSXE\Observer\Stock;
 
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\App\RequestInterface;
-use LeanSwift\EconnectSXE\Api\UpdateStock;
+use LeanSwift\EconnectSXE\Api\StockInterface;
+use LeanSwift\EconnectSXE\Helper\Data;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\GroupedProduct\Model\Product\Type\Grouped;
 
 class StockSyncOnProductViewObserver implements ObserverInterface
 {
-    protected $_updateStock;
+    protected $_productStock;
     protected $_request;
+    protected $_helperData;
+    protected $_productRepository;
 
     public function __construct(
-        UpdateStock $updateStock,
-        RequestInterface $request
+        StockInterface $updateStock,
+        RequestInterface $request,
+        ProductRepositoryInterface $productRepository,
+        Data $data
     )
     {
         $this->_request = $request;
-        $this->_updateStock = $updateStock;
+        $this->_productStock = $updateStock;
+        $this->_helperData = $data;
+        $this->_productRepository = $productRepository;
     }
 
     public function execute(Observer $observer)
     {
-        $requestParams = $this->_request->getParams();
-        if (isset($requestParams['selected_configurable_option']) && $requestParams['selected_configurable_option'] != null) {
-            $productId = (int)$requestParams['selected_configurable_option']; //Get associated product from configurable product
-            //$this->_productStock->updateProductStock($productId); //Update product stock based on M3 response
-            $this->_updateStock->updateProductStock($productId);
-        } else if (isset($requestParams['super_group']) && $requestParams['super_group'] != null) {
-            //Get associated product Ids whose qty's greater than zero when add to cart
-            $productIds = array_filter($requestParams['super_group'], function ($qty) {
-                return $qty > 0;
-            });
-            if (count($productIds)) {
-                $this->_updateStock->prepareGroupedProductStock($productIds);
+        $path = $this->_productStock->getEnablePath();
+        $storeId = $this->_helperData->getStoreId();
+        $isSyncEnabled = $this->_helperData->getDataValue($path, $storeId);
+        if ($isSyncEnabled) {
+            $product = null;
+            $params = $this->_request->getParams(); //get product id from params
+            $productId = $params['id'];
+            try {
+                $product = $this->_productRepository->getById($productId, false, $storeId); //Get product by Id from repository
+            } catch (NoSuchEntityException $e) {
+                return false;
             }
-        } else {
-            $productId = (int)$this->_request->getParam('id');
-            $this->_updateStock->updateProductStock($productId); //Update product stock based on M3 response
+            if ($product) {
+                $logger = $this->_productStock->getLogger();
+                $canWriteLog = $this->_productStock->canWriteLog();
+                $typeId = $product->getTypeId();
+                switch ($typeId) {
+                    case Configurable::TYPE_CODE:
+                        if ($canWriteLog) {
+                            $logger->info('Initialize stock update for configurable products..');
+                        }
+                        $this->_productStock->updateConfigurableStock($product);
+                        break;
+                    case Grouped::TYPE_CODE:
+                        if ($canWriteLog) {
+                            $logger->info('Initialize stock update for grouped products..');
+                        }
+                        $this->_productStock->updateConfigurableStock($product, 'grouped');
+                        break;
+                    default:
+                        if ($canWriteLog) {
+                            $logger->info('Initialize stock update for simple products..');
+                        }
+                        $this->_productStock->updateProductStock($product);
+                }
+                return $this;
+            }
         }
     }
 }

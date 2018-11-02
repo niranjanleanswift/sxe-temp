@@ -11,8 +11,8 @@ use Magento\GroupedProduct\Model\Product\Type\Grouped;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use LeanSwift\EconnectSXE\Api\UpdateStock as UpdateStockInterface;
-use LeanSwift\EconnectSXE\Model\Soap\ProductStock;
+use LeanSwift\EconnectSXE\Api\StockInterface;
+use LeanSwift\EconnectSXE\Model\Soap\AbstractRequest;
 use Magento\CatalogInventory\Helper\Stock as StockHelper;
 use Magento\Catalog\Model\ProductFactory;
 use Magento\CatalogInventory\Model\Indexer\Stock\Processor;
@@ -20,7 +20,7 @@ use Magento\Framework\App\ResourceConnection as DbConnection;
 use Magento\Framework\Indexer\IndexerRegistry;
 use Magento\Checkout\Model\Cart as CartItem;
 
-class Stock implements UpdateStockInterface
+class Stock implements StockInterface
 {
 
     protected $_stockRegistryInterface;
@@ -36,6 +36,8 @@ class Stock implements UpdateStockInterface
     protected $_connection = null;
     protected $_reindexFlag = false;
     protected $_indexerRegistry;
+    protected $_canWriteLog = false;
+    protected $_logger;
 
     public function __construct(
         ProductRepositoryInterface $productRepository,
@@ -45,7 +47,7 @@ class Stock implements UpdateStockInterface
         $backendEnablePath = '',
         $responseField = '',
         $warehousePath = '',
-        ProductStock $ProductStock,
+        AbstractRequest $ProductStock,
         StockHelper $stock,
         ProductFactory $productFactory,
         Product $productHelper,
@@ -69,11 +71,33 @@ class Stock implements UpdateStockInterface
         $this->_connection = $dbConnection->getConnection('write');
         $this->_indexerRegistry = $indexerRegistry;
         $this->_cartItem = $cart;
+        $this->_canWriteLog =  $this->logEnabled();
+        $this->_logger = $this->_productStock->getLogger();
     }
 
     public function setEnablePath($path)
     {
         $this->_path = $path;
+    }
+
+    public function getLogger() {
+        return $this->_logger;
+    }
+
+    public function getEnablePath() {
+        return $this->_path;
+    }
+
+    public function logEnabled() {
+        return $this->_scopeConfig->getValue(
+            $this->_productStock->getLoggerEnablePath(),
+            ScopeInterface::SCOPE_STORE,
+            $this->getStoreId()
+        );
+    }
+
+    public function canWriteLog() {
+        return $this->_canWriteLog;
     }
 
     public function getStoreId()
@@ -90,14 +114,6 @@ class Stock implements UpdateStockInterface
         }
     }
 
-    public function canUpdateStock() {
-        return $this->_scopeConfig->isSetFlag(
-            $this->_path,
-            ScopeInterface::SCOPE_STORE,
-            $this->getStoreId()
-        );
-    }
-
     public function getCurrentWarehouse()
     {
         return $this->_scopeConfig->getValue(
@@ -108,31 +124,31 @@ class Stock implements UpdateStockInterface
     }
 
     public function updateProductStock($productId) {
-        if($this->canUpdateStock()){
-            if ($productId != null && !$productId instanceof \Magento\Catalog\Model\Product) {
-                $product =  $this->_productFactory->create()->load($productId);
-            }
-            $storeId = $product->getStoreId();
-            if (!$product) {
-                return false;
-            }
-            if ($product->getTypeId() == Configurable::TYPE_CODE) {
-                //Prepare associated products of Config products
-                $response = $this->_prepareAssociatedProducts($product);
-                return $response;
-            }
-            if ($product->getTypeId() == Grouped::TYPE_CODE) {
-                //Prepare associated products of grouped products
-                $response = $this->_prepareAssociatedProducts($product, 'grouped');
-                return $response;
-            }
-            $sxeProductNumber = Product::getSXEProductNumber($product);
-            if($sxeProductNumber) {
-                $response = $this->_createRequest([$sxeProductNumber]);
-                if(!empty($response)) {
-                    $output = $response[$sxeProductNumber];
-                    $this->updateStock($product, $output[$this->_responseField]);
-                }
+        if ($productId != null && !$productId instanceof \Magento\Catalog\Model\Product) {
+            $product =  $this->_productFactory->create()->load($productId);
+        }
+        else {
+            $product = $productId;
+        }
+        if (!$product) {
+            return false;
+        }
+        if ($product->getTypeId() == Configurable::TYPE_CODE) {
+            //Prepare associated products of Config products
+            $response = $this->_prepareAssociatedProducts($product);
+            return $response;
+        }
+        if ($product->getTypeId() == Grouped::TYPE_CODE) {
+            //Prepare associated products of grouped products
+            $response = $this->_prepareAssociatedProducts($product, 'grouped');
+            return $response;
+        }
+        $sxeProductNumber = Product::getSXEProductNumber($product);
+        if($sxeProductNumber) {
+            $response = $this->_createRequest([$sxeProductNumber]);
+            if(!empty($response)) {
+                $output = $response[$sxeProductNumber];
+                $this->updateStock($product, $output[$this->_responseField]);
             }
         }
         return $this;
@@ -166,6 +182,26 @@ class Stock implements UpdateStockInterface
         }
     }
 
+    public function updateConfigurableStock($product = null, $flag = null)
+    {
+        $response = null;
+        if (!$product) {
+            $products = $this->_product->create()->getCollection()
+                ->addAttributeToSelect(Product::SXE_PRODUCT_NUMBER)
+                ->addAttributeToFilter('type_id', Configurable::TYPE_CODE);
+
+            foreach ($products as $_product) {
+                //Prepare associated products of All configurable products
+                $response = $this->_prepareAssociatedProducts($_product);
+            }
+        } else {
+            //Prepare associated products of browsed configurable products
+            $response = $this->_prepareAssociatedProducts($product, $flag);
+        }
+
+        return $response;
+    }
+
     protected function _prepareAssociatedProducts($product, $flag = null)
     {
         $message = null;
@@ -195,15 +231,21 @@ class Stock implements UpdateStockInterface
                 $this->_stockIndexerProcessor->reindexAll();
             }
             $message = 'Products: ' . $productCount . '; Updates: ' . $updateCounter;
-            $logger = $this->_productStock->getLogger();
+            $logger = $this->getLogger();
             //Print log message  for configurable products
             if ($typeId == Configurable::TYPE_CODE) {
-                $logger->info('Updating configurable type product stock: ' . $message);
+                if($this->canWriteLog())
+                {
+                    $logger->info('Updating configurable type product stock: ' . $message);
+                }
             }
 
             //Print log message for groped products
             if ($typeId == Grouped::TYPE_CODE) {
-                $logger->info('Updated grouped type product stock: ' . $message);
+                if($this->canWriteLog())
+                {
+                    $logger->info('Updated grouped type product stock: ' . $message);
+                }
             }
         }
         return $message;
@@ -296,15 +338,15 @@ class Stock implements UpdateStockInterface
             }
             if (count($sxeItemArray)) {
                 $stockData = $this->_createRequest($sxeItemArray);
-
                 if ($stockData) {
                     foreach ($stockData as $itemNo => $itemQty) {
                         $sku = $skuArray[$itemNo];
                         $productId = $entityIdArray[$itemNo];
                         $existingQty = $originalQtyArray[$itemNo];
-                        if ($itemQty != $existingQty) {
-                            $stockInfo[$sku] = array('product_id' => $productId, 'qty' => $itemQty, 'stock_id' => 1);
-                            if ($itemQty > 0) {//Check if stockQty value is greater than zero, M3 response may return negative values, for that cases product should be out of stock
+                        $newQty = $itemQty[$this->_responseField];
+                        if ($newQty != $existingQty) {
+                            $stockInfo[$sku] = array('product_id' => $productId, 'qty' => $newQty, 'stock_id' => 1);
+                            if ($newQty > 0) {//Check if stockQty value is greater than zero, M3 response may return negative values, for that cases product should be out of stock
                                 $stockInfo[$sku]['is_in_stock'] = 1;
                             } else {
                                 $stockInfo[$sku]['is_in_stock'] = 0;
@@ -312,8 +354,11 @@ class Stock implements UpdateStockInterface
                             }
                         }
                     }
-                    $logger = $this->_productStock->getLogger();
-                    $logger->info(print_r($stockInfo,true));
+                    if($this->canWriteLog())
+                    {
+                        $logger = $this->getLogger();
+                        $logger->info(print_r($stockInfo,true));
+                    }
                     if (count($stockInfo)) {
                         $this->_directUpdate($stockInfo, false);
                     }
@@ -324,8 +369,10 @@ class Stock implements UpdateStockInterface
             }
 
         } else {
-            $logger = $this->_productStock->getLogger();
-            $logger->info('No Products In Cart');
+            if($this->canWriteLog()) {
+                $logger = $this->getLogger();
+                $logger->info('No Products In Cart');
+            }
         }
     }
 
@@ -343,7 +390,7 @@ class Stock implements UpdateStockInterface
             $this->_connection->insertOnDuplicate($stockTable, $stockData, ['qty', 'is_in_stock']);
         }
         //Reindex catalog inventory stock
-        $this->stockIndexerProcessor->reindexAll();
+        $this->_stockIndexerProcessor->reindexAll();
 
         $afterTime = microtime(true);
         $time = $afterTime - $beforeTime;
@@ -351,8 +398,12 @@ class Stock implements UpdateStockInterface
         if ($batch) {
             $message = ", Batch $batch";
         }
-        $logger = $this->_productStock->getLogger();
-        $logger->info("Updated records:  : $totalCount $message   Time taken: $time");
+
+        if($this->canWriteLog())
+        {
+            $logger = $this->getLogger();
+            $logger->info("Updated records:  : $totalCount $message   Time taken: $time");
+        }
         return $totalCount;
     }
 

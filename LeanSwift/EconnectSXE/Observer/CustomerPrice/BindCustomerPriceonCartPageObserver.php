@@ -20,40 +20,51 @@
  * @license     http://www.leanswift.com/license/connector-extension
  */
 
-namespace LeanSwift\EconnectSXE\Observer\Stock;
+namespace LeanSwift\Econnect\Observer\CustomerPrice;
 
+use LeanSwift\Econnect\Helper\Data;
+use LeanSwift\Econnect\Api\PriceInterface;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\Event\Observer;
-use Magento\Framework\App\RequestInterface;
-use LeanSwift\EconnectSXE\Api\StockInterface;
-use LeanSwift\EconnectSXE\Helper\Data;
 
-class StockSyncOnCheckoutObserver implements ObserverInterface
+/**
+ * Class BindCustomerPriceonCartPageObserver
+ * @package LeanSwift\Econnect\Observer\CustomerPrice
+ */
+class BindCustomerPriceonCartPageObserver implements ObserverInterface
 {
-
-    protected $_request;
-    protected $_productStock;
+    /**
+     * Econnect helper
+     *
+     * @var LeanSwift\Econnect\Helper\Data
+     */
     protected $_helperData = null;
 
-    public function __construct(
-        RequestInterface $RequestInterface,
-        StockInterface $updateStock,
-        Data $helperData
-    )
+    /**
+     * Customer price interface
+     *
+     * @var PriceInterface
+     *
+     */
+    protected $_priceInterface;
+
+    /**
+     * BindCustomerPriceonCartPageObserver constructor.
+     * @param Data $helperData
+     * @param PriceInterface $priceInterface
+     */
+    public function __construct(Data $helperData, Priceinterface $priceInterface)
     {
-        $this->_request = $RequestInterface;
-        $this->_productStock = $updateStock;
         $this->_helperData = $helperData;
+        $this->_priceInterface = $priceInterface;
     }
 
-    public function execute(Observer $observer)
+    /**
+     * Binds the customer price on loading the cart page
+     *
+     * @param \Magento\Framework\Event\Observer $observer
+     */
+    public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        $path = $this->_productStock->getEnablePath();
-        $storeId = $this->_helperData->getStoreId();
-        $isSyncEnabled = $this->_helperData->getDataValue($path, $storeId);
-        if ($isSyncEnabled) {
-            $this->_productStock->prepareCartItemSync();
-        }
-    }
 
+    }
 }

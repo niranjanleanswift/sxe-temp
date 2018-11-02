@@ -18,4 +18,11 @@ class Configurations
     const XML_STOCK_ENABLE_ADD_TO_CART = 'econnectSXE/stock/enable_cart';
     const XML_STOCK_ENABLE_CHECKOUT_PAGE = 'econnectSXE/stock/enable_checkout';
     const XML_STOCK_ENABLE_LOGGER = 'econnectSXE/stock/log';
+
+    /** Customer Price settings */
+
+    const XML_CUSTOMER_PRICE_ENABLE_PRODUCT_PRICE = 'econnectSXE/customer_price/enable_price';
+    const XML_CUSTOMER_PRICE_ENABLE_PRODUCT_LISTING = 'econnectSXE/customer_price/enable_listing';
+    const XML_CUSTOMER_PRICE_CACHE_HOURS = 'econnectSXE/customer_price/cache_hours';
+    const XML_CUSTOMER_PRICE_LOGGER = 'econnectSXE/customer_price/log';
 }

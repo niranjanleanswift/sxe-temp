@@ -9,6 +9,7 @@ class CustomerPrice extends AbstractRequest
     }
 
     public function getPostValues() {
+        return $this->_postValues;
         $data['CustomerNumber'] = '151';
         $data['ProductCode'] = '1-002';
         $data['Quantity'] = '15';

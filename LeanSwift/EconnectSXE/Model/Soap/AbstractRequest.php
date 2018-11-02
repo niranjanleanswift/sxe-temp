@@ -31,7 +31,7 @@ use LeanSwift\EconnectSXE\Api\Soap\RequestInterface;
 use LeanSwift\EconnectSXE\Helper\Data;
 use Monolog\Logger;
 
-abstract class AbstractRequest
+class AbstractRequest
 {
     protected $_helper;
     protected $_request;
@@ -44,8 +44,8 @@ abstract class AbstractRequest
     (
         RequestInterface $request,
         Data $helper,
-        $mappings = [],
         Logger $logger,
+        $mappings = array(),
         $loggerEnablePath = ''
     )
     {
@@ -71,6 +71,10 @@ abstract class AbstractRequest
 
     public function setPostValues($postValues) {
         $this->_postValues = $postValues;
+    }
+
+    public function getLoggerEnablePath() {
+        $this->_loggerEnablePath;
     }
 
     public function getLogger() {

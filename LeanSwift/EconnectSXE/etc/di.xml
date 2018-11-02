@@ -7,7 +7,15 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="LeanSwift\EconnectSXE\Api\Soap\RequestInterface" type="LeanSwift\EconnectSXE\Model\Soap\Client\Connect"/>
-    <preference for="LeanSwift\EconnectSXE\Api\UpdateStock" type="LeanSwift\EconnectSXE\Model\Catalog\Product\Stock"/>
+    <preference for="LeanSwift\EconnectSXE\Api\StockInterface" type="LeanSwift\EconnectSXE\Model\Catalog\Product\Stock"/>
+    <preference for="LeanSwift\EconnectSXE\Api\PriceInterface" type="LeanSwift\EconnectSXE\Model\Catalog\Product\Price"/>
+
+    <type name="Magento\Catalog\Pricing\Price\FinalPrice">
+        <plugin name="sxe_customer_price_for_finalprice"
+                type="LeanSwift\EconnectSXE\Model\Catalog\Product\Plugin\Pricing\FinalPrice" sortOrder="200"
+                disabled="false"/>
+    </type>
+
     <type name="LeanSwift\EconnectSXE\Model\Soap\Client\Connect">
         <arguments>
             <argument name="locationURL" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_SOAP_SERVICE_URL</argument>
@@ -42,16 +50,27 @@
         </arguments>
     </type>
 
-    <type name="LeanSwift\EconnectSXE\Model\Catalog\Product\Stock">
-        <arguments>
-            <argument name="warehousePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_DEFAULT_WAREHOUSE</argument>
-            <argument name="responseField" xsi:type="string">NetAvailable</argument>
-        </arguments>
-    </type>
 
     <!-- Start Logger -->
 
     <!-- Stock Synch Log -->
+
+    <virtualType name="DefaultHandler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="const">LeanSwift\EconnectSXE\Helper\Logger::DEFAULT_LOG</argument>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="DefaultSyncLogger" type="Monolog\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">SxeLogger</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">DefaultHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
     <virtualType name="StockSyncHandler" type="Magento\Framework\Logger\Handler\Base">
         <arguments>
             <argument name="fileName" xsi:type="const">LeanSwift\EconnectSXE\Helper\Logger::STOCK_SYNC_LOG</argument>
@@ -102,16 +121,31 @@
         </arguments>
     </virtualType>
 
+    <!-- Customer Price Log -->
+    <virtualType name="CustomerPriceSyncHandler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="const">LeanSwift\EconnectSXE\Helper\Logger::CUSTOMER_PRICE_SYNC_LOG</argument>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CustomerPriceSyncLogger" type="Monolog\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">CustomerPriceSyncLog</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">CustomerPriceSyncHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
     <!-- End Logger -->
 
-    <type name="LeanSwift\EconnectSXE\Model\Soap\ProductStock">
+
+    <!-- Forming Request Class -->
+
+    <type name="LeanSwift\EconnectSXE\Model\Soap\AbstractRequest">
         <arguments>
-            <argument name="logger" xsi:type="object">StockSynchLogger</argument>
-            <argument name="loggerEnablePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_STOCK_ENABLE_LOGGER</argument>
-            <argument name="mappings" xsi:type="array">
-                <item name="namespace" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::PRODUCT_NAMESPACE</item>
-                <item name="api" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::PRODUCT_API</item>
-            </argument>
+            <argument name="logger" xsi:type="object">DefaultSyncLogger</argument>
         </arguments>
     </type>
 
@@ -126,14 +160,44 @@
         </arguments>
     </type>
 
-    <type name="LeanSwift\EconnectSXE\Model\Soap\CustomerPrice">
+    <virtualType name="StockRequest" type="LeanSwift\EconnectSXE\Model\Soap\AbstractRequest">
         <arguments>
-            <argument name="logger" xsi:type="object">ProductSynchLogger</argument>
-            <argument name="loggerEnablePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_DEFAULT_DEBUG_ENABLE</argument>
+            <argument name="logger" xsi:type="object">StockSynchLogger</argument>
+            <argument name="loggerEnablePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_STOCK_ENABLE_LOGGER</argument>
+            <argument name="mappings" xsi:type="array">
+                <item name="namespace" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::PRODUCT_NAMESPACE</item>
+                <item name="api" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::PRODUCT_API</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="CustomerPriceRequest" type="LeanSwift\EconnectSXE\Model\Soap\AbstractRequest">
+        <arguments>
+            <argument name="logger" xsi:type="object">CustomerPriceSyncLogger</argument>
+            <argument name="loggerEnablePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_CUSTOMER_PRICE_LOGGER</argument>
             <argument name="mappings" xsi:type="array">
                 <item name="namespace" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::CUSTOMER_PRICE_NAMESPACE</item>
                 <item name="api" xsi:type="const">LeanSwift\EconnectSXE\Helper\Data::CUSTOMER_PRICE_API</item>
             </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- End of request forming-->
+
+    <type name="LeanSwift\EconnectSXE\Model\Catalog\Product\Stock">
+        <arguments>
+            <argument name="ProductStock" xsi:type="object">StockRequest</argument>
+            <argument name="warehousePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_DEFAULT_WAREHOUSE</argument>
+            <argument name="responseField" xsi:type="string">NetAvailable</argument>
+        </arguments>
+    </type>
+
+    <type name="LeanSwift\EconnectSXE\Model\Catalog\Product\Price">
+        <arguments>
+            <argument name="CacheHours" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_CUSTOMER_PRICE_CACHE_HOURS</argument>
+            <argument name="request" xsi:type="object">CustomerPriceRequest</argument>
+            <argument name="warehousePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_DEFAULT_WAREHOUSE</argument>
+            <argument name="responseField" xsi:type="string">ExtendedAmount</argument>
         </arguments>
     </type>
 
@@ -157,6 +221,12 @@
         </arguments>
     </virtualType>
 
+    <virtualType name="PriceUpdateDuringProductView" type="LeanSwift\EconnectSXE\Model\Catalog\Product\Price">
+        <arguments>
+            <argument name="backendEnablePath" xsi:type="const">LeanSwift\EconnectSXE\Helper\Configurations::XML_CUSTOMER_PRICE_ENABLE_PRODUCT_PRICE</argument>
+        </arguments>
+    </virtualType>
+
     <!-- This happens during the product view page -->
 
     <type name="LeanSwift\EconnectSXE\Observer\Stock\StockSyncOnProductViewObserver">
@@ -173,9 +243,25 @@
         </arguments>
     </type>
 
+    <!-- This happens during the checkout page -->
+
     <type name="LeanSwift\EconnectSXE\Observer\Stock\StockSyncOnCheckoutObserver">
         <arguments>
             <argument name="updateStock" xsi:type="object">StockUpdateDuringAddToCheckout</argument>
+        </arguments>
+    </type>
+
+    <!-- This happens during the product view page -->
+
+    <type name="LeanSwift\EconnectSXE\Observer\CustomerPrice\BindCustomerPriceonViewPageLoadObserver">
+        <arguments>
+            <argument name="priceInterface" xsi:type="object">PriceUpdateDuringProductView</argument>
+        </arguments>
+    </type>
+
+    <type name="LeanSwift\EconnectSXE\Model\Catalog\Product\Plugin\Product\Type\Price">
+        <arguments>
+            <argument name="customerPriceInterface" xsi:type="object">PriceUpdateDuringProductView</argument>
         </arguments>
     </type>
 
